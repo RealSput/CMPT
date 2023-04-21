@@ -1,0 +1,149 @@
+let regs = [0, 0, 0, 0];
+
+let stack = [];
+
+let program = [];
+
+let pc = 0;
+
+let halted = false;
+
+let load = (prg) {
+    program = prg;
+}
+
+let runone = () {
+    if halted == true {
+        throw "execution halted"
+    }
+    let instr = program[pc];
+
+    match(instr) {
+        ==
+        10: () {
+                pc++;
+                let rdst = program[pc++];
+                let rsrc = program[pc++];
+                regs[rdst] = regs[rsrc]; 
+            }(),
+
+            ==
+            11: () {
+                pc++;
+                let rdst = program[pc++];
+                let val = program[pc++];
+                regs[rdst] = val;
+            }(),
+
+            ==
+            20: () {
+                pc++;
+                let rdst = program[pc++];
+                let rsrc = program[pc++];
+                regs[rdst] += regs[rsrc];
+            }(),
+
+            ==
+            21: () {
+                pc++;
+                let rdst = program[pc++];
+                let rsrc = program[pc++];
+                regs[rdst] -= regs[rsrc];
+            }(),
+
+            ==
+            30: () {
+                pc++;
+                let rsrc = program[pc++];
+                stack.push(regs[rsrc]);
+            }(),
+
+            ==
+            31: () {
+                pc++;
+                let rdst = program[pc++];
+                regs[rdst] = stack[stack.length - 1];
+            }(),
+
+            ==
+            40: () {
+                pc++;
+                let addr = program[pc++];
+                pc = addr;
+            }(),
+
+            ==
+            41: () {
+                pc++;
+                let r1 = program[pc++];
+                let r2 = program[pc++];
+                let addr = program[pc++];
+                if (regs[r1] < regs[r2]) {
+                    pc = addr
+                }
+            }(),
+
+            ==
+            42: () {
+                pc++;
+                let addr = program[pc++];
+                stack.push(pc);
+                pc = addr;
+            }(),
+
+            ==
+            50: () {
+                pc++;
+                let addr = stack.pop();
+                pc = addr;
+            }(),
+
+            ==
+            60: () {
+                pc++;
+                let reg = program[pc++];
+                $.print(regs[reg]);
+            }(),
+
+            ==
+            255: () {
+                throw "execution halted"
+            }()
+        else: () {
+            pc++;
+            halted = true;
+        }(),
+    }
+
+    if (pc >= program.length) {
+        halted = true;
+    }
+
+}
+
+let run = () {
+    while (halted == false) {
+        runone();
+    }
+}
+
+return { 
+ MOVR: 10,
+ MOVV: 11,
+ ADD: 20,
+ SUB: 21,
+ PUSH: 30,
+ POP: 31,
+ JP: 40,
+ JL: 41,
+ CALL: 42,
+ RET: 50,
+ PRINT: 60,
+ HALT: 255,
+ R0: 0,
+ R1: 1,
+ R2: 2,
+ R3: 3,
+ load: load,
+ run: run
+}
